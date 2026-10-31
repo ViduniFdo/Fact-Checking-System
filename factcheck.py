@@ -5,6 +5,8 @@ from typing import List
 import numpy as np
 import spacy
 import gc
+import re
+from nltk.stem import PorterStemmer
 
 
 class FactExample(object):
@@ -80,10 +82,83 @@ class AlwaysEntailedFactChecker(FactChecker):
     def predict(self, fact: str, passages: List[dict]) -> str:
         return "S"
 
+stop_words = ["a", "an", "the", "and", "or", "but", "of", "in", "on", "at", "to", "for", "from", "by", "with", "as",
+            "is", "are", "was", "were", "be", "been", "being", "am", "it", "its", "this", "that", "these", "those",
+            "he", "she", "they", "his", "her", "their", "him", "them", "who", "whom", "which", "what", "when",
+            "where", "while", "also", "has", "have", "had", "do", "does", "did", "not", "no", "so", "than",
+            "then", "there", "into", "about", "over", "after", "before", "during", "between", "both", "each", "other",
+            "such", "can", "could", "would", "should", "may", "might", "will", "shall", "i", "we", "you", "your", "our"
+              ]
 
+stemmer = PorterStemmer()
+
+def tokenize_text(text:str) -> List[str]:
+    text = text.lower()
+    text = text.replace("<s>", " ")
+    text = text.replace("</s>", " ")
+    words = re.findall(r"[a-z0-9]+", text)
+    return words
+
+def remove_stop_words(words: List[str]) -> List[str]:
+    kept_words = []
+    for word in words:
+        if word not in stop_words:
+            kept_words.append(word)
+    return kept_words
+
+def stem_words(words: List[str]) -> List[str]:
+    stemmed_words = []
+    for word in words:
+        stemmed_words.append(stemmer.stem(word))
+    return stemmed_words
+
+def preprocess_text(text: str, remove_stop: bool = True, use_stemming: bool = True) -> List[str]:
+    words = tokenize_text(text)
+    if remove_stop:
+        words = remove_stop_words(words)
+    if use_stemming:
+        words = stem_words(words)
+    return words
+
+def get_passage_words(passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> set:
+    passage_words = set()
+    for passage in passages:
+        words = preprocess_text(passage["text"], remove_stop, use_stemming)
+        for word in words:
+            passage_words.add(word)
+    return passage_words
+
+def count_overlapping_words(fact_words: set, passage_words: set) -> int:
+    overlap_count = 0
+    for word in fact_words:
+        if word in passage_words:
+            overlap_count = overlap_count + 1
+    return overlap_count
+
+#score = overlap/ no. of different words
+def word_overlap_score(fact: str, passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> float:
+    fact_words = set(preprocess_text(fact, remove_stop, use_stemming))
+    if len(fact_words) == 0:
+        return 0.0
+
+    passage_words = get_passage_words(passages, remove_stop, use_stemming)
+    overlap_count = count_overlapping_words(fact_words, passage_words)
+
+    return overlap_count / len(fact_words)
+
+#Baseline overlap fact checker
 class WordRecallThresholdFactChecker(FactChecker):
+    def __init__(self, threshold: float = 0.75, remove_stop: bool = True, use_stemming: bool = True):
+        self.threshold = threshold
+        self.remove_stop = remove_stop
+        self.use_stemming = use_stemming
+
     def predict(self, fact: str, passages: List[dict]) -> str:
-        raise Exception("Implement me")
+        score = word_overlap_score(fact, passages, self.remove_stop, self.use_stemming)
+        if score >= self.threshold:
+            return "S"
+        else:
+            return "NS"
 
 
 class EntailmentFactChecker(FactChecker):
