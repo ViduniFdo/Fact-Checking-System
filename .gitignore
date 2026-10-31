@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# PyCharm settings
+.idea/
+.venv/
+
+# Coursework data
+data/
