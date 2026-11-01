@@ -7,6 +7,9 @@ import spacy
 import gc
 import re
 from nltk.stem import PorterStemmer
+import math
+from collections import Counter
+from rouge_score import rouge_scorer
 
 
 class FactExample(object):
@@ -135,31 +138,114 @@ def count_overlapping_words(fact_words: set, passage_words: set) -> int:
             overlap_count = overlap_count + 1
     return overlap_count
 
-#score = overlap/ no. of different words
-def word_overlap_score(fact: str, passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> float:
+
+def jaccard_similarity_score(fact: str, passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> float:
+    """ Computes Jaccard Similarity: |Fact ∩ Passages| / |Fact ∪ Passages| """
     fact_words = set(preprocess_text(fact, remove_stop, use_stemming))
-    if len(fact_words) == 0:
+    if not fact_words:
         return 0.0
 
     passage_words = get_passage_words(passages, remove_stop, use_stemming)
-    overlap_count = count_overlapping_words(fact_words, passage_words)
+    if not passage_words:
+        return 0.0
 
-    return overlap_count / len(fact_words)
+    intersection = len(fact_words.intersection(passage_words))
+    union = len(fact_words.union(passage_words))
+    return intersection / union if union > 0 else 0.0
 
-#Baseline overlap fact checker
+
+def tfidf_similarity_score(fact: str, passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> float:
+    """ Computes Cosine Similarity between TF-IDF vectors of Fact and Passages """
+    fact_tokens = preprocess_text(fact, remove_stop, use_stemming)
+    passage_tokens = []
+    for p in passages:
+        passage_tokens.extend(preprocess_text(p["text"], remove_stop, use_stemming))
+
+    if not fact_tokens or not passage_tokens:
+        return 0.0
+
+    vocab = set(fact_tokens).union(set(passage_tokens))
+    doc_count = 2
+
+    tf_fact = Counter(fact_tokens)
+    tf_passage = Counter(passage_tokens)
+
+    vec_fact, vec_passage = [], []
+    for term in vocab:
+        df = (1 if term in tf_fact else 0) + (1 if term in tf_passage else 0)
+        idf = math.log((1 + doc_count) / (1 + df)) + 1
+        vec_fact.append((tf_fact[term] / len(fact_tokens)) * idf)
+        vec_passage.append((tf_passage[term] / len(passage_tokens)) * idf)
+
+    dot_product = sum(f * p for f, p in zip(vec_fact, vec_passage))
+    norm_fact = math.sqrt(sum(f ** 2 for f in vec_fact))
+    norm_passage = math.sqrt(sum(p ** 2 for p in vec_passage))
+
+    if norm_fact == 0 or norm_passage == 0:
+        return 0.0
+    return dot_product / (norm_fact * norm_passage)
+
+
+def rouge_similarity_score(fact: str, passages: List[dict], metric: str = "rouge1", stat: str = "fmeasure") -> float:
+    """ Computes maximum ROUGE score across passages """
+    if not passages:
+        return 0.0
+
+    scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
+    max_score = 0.0
+    for p in passages:
+        scores = scorer.score(target=fact, prediction=p["text"])
+        score_val = getattr(scores[metric], stat)
+        if score_val > max_score:
+            max_score = score_val
+    return max_score
+
+# Set this variable to control which metric runs: "word_recall", "jaccard", "tfidf", or "rouge"
+# Set active_metric to: "word_recall", "jaccard", "tfidf", or "rouge"
+active_metric = "word_recall"
+
+def word_overlap_score(fact: str, passages: List[dict], remove_stop: bool = True, use_stemming: bool = True) -> float:
+    if active_metric == "word_recall":
+        fact_words = set(preprocess_text(fact, remove_stop, use_stemming))
+        if len(fact_words) == 0:
+            return 0.0
+        passage_words = get_passage_words(passages, remove_stop, use_stemming)
+        return count_overlapping_words(fact_words, passage_words) / len(fact_words)
+
+    elif active_metric == "jaccard":
+        return jaccard_similarity_score(fact, passages, remove_stop, use_stemming)
+
+    elif active_metric == "tfidf":
+        return tfidf_similarity_score(fact, passages, remove_stop, use_stemming)
+
+    elif active_metric == "rouge":
+        return rouge_similarity_score(fact, passages, metric="rouge1", stat="fmeasure")
+    
+    return 0.0
+
+
 class WordRecallThresholdFactChecker(FactChecker):
     def __init__(self, threshold: float = 0.75, remove_stop: bool = True, use_stemming: bool = True):
-        self.threshold = threshold
+        self.default_threshold = threshold
         self.remove_stop = remove_stop
         self.use_stemming = use_stemming
 
     def predict(self, fact: str, passages: List[dict]) -> str:
+        # Dynamically set threshold based on the selected metric
+        if active_metric == "jaccard":
+            thresh = 0.015
+        elif active_metric == "tfidf":
+            thresh = 0.08
+        elif active_metric == "rouge":
+            thresh = 0.05
+        else:
+            thresh = self.default_threshold
+
         score = word_overlap_score(fact, passages, self.remove_stop, self.use_stemming)
-        if score >= self.threshold:
+        if score >= thresh:
             return "S"
         else:
             return "NS"
-
 
 class EntailmentFactChecker(FactChecker):
     def __init__(self, ent_model):
