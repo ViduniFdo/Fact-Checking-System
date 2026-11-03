@@ -1,0 +1,151 @@
+
+===== FP: 10 =====
+
+[FP1] gold=NS title=Marianne McAndrew
+FACT: Marianne McAndrew is an American.
+probs(ent,neu,con)=[0.87, 0.13, 0.0]
+PREMISE: Marianne McAndrew. "Hello, Dolly!" earned McAndrew two Golden Globe nominations in 1969; Golden Globe Award for Best Supporting Actress – Motion Picture and the since discontinued Golden Globe Award for New Star of the Year – Actress, as well as generally good reviews. She landed a starring (second billed) role in her next film ("The Seven Minutes"). By 1971, she had made appearances in popular TV shows including "Hawaii 5-0", "Mannix", "Cannon" and "Love, American Style" One notable later film role was her co-starring role in "The Bat People", with her husband Stewart Moss.
+
+[FP2] gold=IR title=Mike Trivisonno
+FACT: Cleveland is in Ohio.
+probs(ent,neu,con)=[0.99, 0.01, 0.0]
+PREMISE: Mike Trivisonno. Trivisonno's popularity and high ratings led him to be ranked numerous times among "Talkers Magazine's" "Heavy Hundred", including most recently in 2015, when he came in at #72. He was also a nominee for the Large Market Personality of the Year Marconi Award in 2010. Trivisonno was born in East Cleveland, Ohio, and attended Mayfield High School in
+
+[FP3] gold=NS title=Jean Daullé
+FACT: Jean Daullé was a printmaker.
+probs(ent,neu,con)=[0.99, 0.01, 0.0]
+PREMISE: Jean Daullé. In 1735, his work attracted the attention of the engraver and merchant, Pierre-Jean Mariette, who provided him with professional recommendations. Soon after, he was approached by the painter, Hyacinthe Rigaud, who wanted to make him his official engraver. In 1742, Daullé was received at the Académie Royale de Peinture et de Sculpture, with his presentation, "Hyacinthe Rigaud Painting his Wife", after a work by Rigaud.
+
+[FP4] gold=NS title=Mike Trivisonno
+FACT: Trivisonno worked at WKNR.
+probs(ent,neu,con)=[0.99, 0.0, 0.01]
+PREMISE: Mike Trivisonno. in the ratings, even though it was usually up against Cleveland Indians games on WKNR. It did so well, the decision was made to put Trivisonno in afternoon drive-time (under the "Sportsline" banner until 1998; under his own name since) ultimately leaving "Sportsline" to other hosts. Throughout the program's history, "The Mike Trivisonno Show" was usually either first or second in ratings in its time slot in the market.
+
+[FP5] gold=NS title=Nisar Ahmad Kakru
+FACT: Nisar Ahmad Kakru was Kashmiri.
+probs(ent,neu,con)=[0.99, 0.01, 0.0]
+PREMISE: Nisar Ahmad Kakru. Nisar Ahmad Kakru Nisar Ahmad Kakru (born 26 October 1949 Baramulla, Kashmir, India) was the Chief Justice of the High Court of Andhra Pradesh, India from 19 February 2010 to 26 October 2011. Kakru was enrolled as a pleader in August 1975, as a vakil in February 1979 and as an advocate in April 1982. Initially from August 1975, he practised at Baramulla district and sessions courts and other courts.
+
+[FP6] gold=NS title=Travis Oliphant
+FACT: Mayo Clinic is an organization.
+probs(ent,neu,con)=[0.95, 0.04, 0.01]
+PREMISE: Travis Oliphant. Oliphant has a Ph.D. in Biomedical Engineering from the Mayo Clinic and B.S. and M.S. degrees in Mathematics and Electrical Engineering from Brigham Young University. Oliphant was an Assistant Professor of Electrical and Computer Engineering at Brigham Young University from 2001 to 2007. In addition, he directed the BYU Biomedical Imaging Lab, and performed research on scanning impedance imaging.
+
+[FP7] gold=NS title=Travis Oliphant
+FACT: He has worked at Mayo Clinic.
+probs(ent,neu,con)=[0.85, 0.14, 0.01]
+PREMISE: Travis Oliphant. Oliphant has a Ph.D. in Biomedical Engineering from the Mayo Clinic and B.S. and M.S. degrees in Mathematics and Electrical Engineering from Brigham Young University. Oliphant was an Assistant Professor of Electrical and Computer Engineering at Brigham Young University from 2001 to 2007. In addition, he directed the BYU Biomedical Imaging Lab, and performed research on scanning impedance imaging.
+
+[FP8] gold=NS title=Rob Furlong
+FACT: He served as a sniper.
+probs(ent,neu,con)=[1.0, 0.0, 0.0]
+PREMISE: Rob Furlong. -range sniper weapon (LRSW), a.50-calibre McMillan Brothers Tac-50 rifle, loaded with Hornady A-MAX 750 gr very-low-drag bullets. He began firing at a fighter carrying an RPK machine gun. Furlong's first shot missed and his second shot hit the knapsack on the target's back.
+
+[FP9] gold=NS title=Kerser
+FACT: Kerser is a songwriter.
+probs(ent,neu,con)=[1.0, 0.0, 0.0]
+PREMISE: Kerser. In March 2013 he released the single "We Here Now" with Rates, which led to a national tour. Among his performances are the Breath of Life Festival in Tasmania alongside 360, Illy, Seth Sentry. In August 2013 Kerser released "The No Rest for the Sickest National Tour" on DVD.
+
+[FP10] gold=NS title=Jidenna
+FACT: Jidenna's music is a fusion of hip-hop.
+probs(ent,neu,con)=[0.52, 0.47, 0.01]
+PREMISE: Jidenna. Beauty, Deep Cotton and Janelle Monáe herself, and then began recording a five-song compilation of its label's first extended play (EP), titled "". In February 2015, Jidenna released his first official single, called "Classic Man" featuring GianArthur. The song was in heavy rotation throughout the United States, and debuted at number 49 on "Billboard" Hot R&B/Hip-Hop Airplay chart.
+
+===== FN: 20 =====
+
+[FN1] gold=S title=Gerhard Fischer (inventor)
+FACT: Gerhard Fischer is best known for inventing a metal detector.
+probs(ent,neu,con)=[0.01, 0.97, 0.02]
+PREMISE: Gerhard Fischer (inventor). A metal detector had been invented some forty years earlier (1881) by Alexander Graham Bell for the sole purpose of locating a lead bullet in President James A. Biography.:Fisher Research Laboratory. He founded "Fisher Research Laboratory" to develop and market the hand held metal detectors in 1931.
+
+[FN2] gold=S title=Gerhard Fischer (inventor)
+FACT: Gerhard Fischer invented the first handheld, battery-operated metal detector.
+probs(ent,neu,con)=[0.0, 0.99, 0.0]
+PREMISE: Gerhard Fischer (inventor). the hand-held metal detector is disputed, the hand-held metal detector was made in 1925 and was first patented by Dr. Gerhard Fisher in 1931. A metal detector had been invented some forty years earlier (1881) by Alexander Graham Bell for the sole purpose of locating a lead bullet in President James A.
+
+[FN3] gold=S title=Jean Daullé
+FACT: Jean Daullé was known for his portraits.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Jean Daullé. after Van Dyck. A detailed account of this artist's works is contained in Delignière's 'Catalogue raisonné de l'oeuvre gravé de Jean Daullé d' Abbeville,' 1872, 8vo. References. - - Attribution:
+
+[FN4] gold=S title=Ko Itakura
+FACT: He made the move in 2019.
+probs(ent,neu,con)=[0.04, 0.05, 0.92]
+PREMISE: Ko Itakura. national football team for 2019 Copa América and made his debut on 20 June 2019 in the game against Uruguay, as a starter. In November 2022, he was selected for the 2022 FIFA World Cup Japan National team for the first time. Participated in all group stage matches and became the first Asian team to win first place in an overseas World Cup group league, contributing to advance to the final tournament for two consecutive tournaments.
+
+[FN5] gold=S title=Malcolm Hedding
+FACT: He served for many years as a pastor.
+probs(ent,neu,con)=[0.16, 0.02, 0.82]
+PREMISE: Malcolm Hedding. Between 1986 and 1989, Malcolm a pastor of the Jerusalem Christian Assembly. During this period, he also functioned as the Chaplain for the International Christian Embassy in Jerusalem. As a Christian Zionist, Malcolm served from 1991 - 2000 as Chairman of "Christian Action for Israel," a biblical Zionist organization in South Africa.
+
+[FN6] gold=S title=Jessica Barboza
+FACT: She was born on July 18, 1987.
+probs(ent,neu,con)=[0.0, 0.0, 1.0]
+PREMISE: Jessica Barboza. Jessica Barboza Jessica Cristina Barboza Schmidt (born in Maracaibo, Venezuela on 14 August 1987) is a Venezuelan model and beauty pageant titleholder who won the titles of Miss Earth Venezuela 2009 and Miss International Venezuela 2010. Sambil Model / Miss Earth Venezuela. Barboza won in 2009 the Sambil Model / Miss Earth Venezuela title in a pageant held in Margarita Island, Venezuela on June 12, 2009.
+
+[FN7] gold=S title=Daniel Carvalho
+FACT: With CSKA, he won domestic titles.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Daniel Carvalho. Carvalho's brilliant play during the 2005 UEFA Cup was the key to success of his team, who won the competition, defeating Sporting Lisbon in the Final. This made CSKA the first Russian club to ever win a UEFA competition. He was Man of the Match in the final as he was involved in all three of CSKA's goals.
+
+[FN8] gold=S title=Jonathan Haagensen
+FACT: Jonathan Haagensen was born in Rio de Janeiro.
+probs(ent,neu,con)=[0.0, 0.99, 0.0]
+PREMISE: Jonathan Haagensen. Jonathan Haagensen Jonathan Haagensen Cerqueira (born February 23, 1983) is a Brazilian actor, model, and singer. Life and career. A resident of the Vidigal community since his birth, he has Norwegian ancestry from his father, who has not seen since he was six years old.
+
+[FN9] gold=S title=Jonathan Haagensen
+FACT: Rio de Janeiro is in Brazil.
+all premises pruned
+
+[FN10] gold=S title=Jonathan Haagensen
+FACT: Haagensen began his acting career in theater.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Jonathan Haagensen. Jonathan Haagensen Jonathan Haagensen Cerqueira (born February 23, 1983) is a Brazilian actor, model, and singer. Life and career. A resident of the Vidigal community since his birth, he has Norwegian ancestry from his father, who has not seen since he was six years old.
+
+[FN11] gold=S title=Jonathan Haagensen
+FACT: Haagensen later transitioned to television.
+all premises pruned
+
+[FN12] gold=S title=Shahnaz Pahlavi
+FACT: They divorced in 1964.
+all premises pruned
+
+[FN13] gold=S title=Ji Sung
+FACT: He has since then starred in numerous dramas.
+probs(ent,neu,con)=[0.04, 0.96, 0.0]
+PREMISE: Ji Sung. It is his first medical drama in 11 years. In 2020, Ji appeared in tvN's travel show "RUN" alongside Kang Ki-young, Lee Tae-sun and Hwang Hee. In 2021, Ji Sung starred in the mystery legal drama "The Devil Judge" with his previous co-star Kim Min-jung who he worked together 13 years ago in the drama "New Heart".
+
+[FN14] gold=S title=Ji Sung
+FACT: He has since then starred in numerous films.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Ji Sung. Ji Sung next appeared in "Confession", a 2014 neo-noir film that brutally explores the aftermath of three men's friendship after the death of one's mother. Career.:2015–present: Career resurgence. In 2015, he reunited with "Secret Love" co-star Hwang Jung-eum in "Kill Me, Heal Me", in which he played a chaebol millionaire with dissociative identity disorder formerly known as Multiple Personality Disorder from DSMIV-TR who has seven different identities.
+
+[FN15] gold=S title=Ji Sung
+FACT: The films he has starred in have been popular.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Ji Sung. The same year he starred in the period comedy film "Feng Shui". In 2019, Ji starred television series "Doctor John". It is his first medical drama in 11 years.
+
+[FN16] gold=S title=Ji Sung
+FACT: "Save the Last Dance for Me." is popular.
+probs(ent,neu,con)=[0.03, 0.96, 0.01]
+PREMISE: Ji Sung. "All In" was a big hit, and Ji Sung's popularity rose and became known as a Hallyu star. Wanting to challenge himself, he next appeared in his first period drama "The King's Woman", playing Gwanghaegun of Joseon. In "Save the Last Dance for Me
+
+[FN17] gold=S title=Ji Sung
+FACT: He has since then starred in "New Heart.".
+probs(ent,neu,con)=[0.28, 0.19, 0.53]
+PREMISE: Ji Sung. He was discharged on 6 June 2007. Career.:2008–2014: Comeback and lead roles. He made his comeback in the medical drama "New Heart" (2007–08), playing a cardiothoracic surgery resident.
+
+[FN18] gold=S title=Ji Sung
+FACT: "New Heart." is popular.
+probs(ent,neu,con)=[0.01, 0.99, 0.0]
+PREMISE: Ji Sung. He is best known for his roles in the television dramas "All In" (2003), "Save the Last Dance for Me" (2004), "New Heart" (2007), "Protect the Boss" (2011), "Secret Love" (2013), "Kill Me, Heal Me" (2015), "Innocent Defendant" (2017), "Familiar Wife" (2018), "Doctor John" (2019), "The Devil Judge" (2021) and the film "My PS Partner" (2012). Kwak Tae-geun's parents were both educators, and they expected him to also enter the teaching profession. But in his sophomore year in high school, his father bought him a VCR and the first movie he rented was "Rain Man".
+
+[FN19] gold=S title=Ji Sung
+FACT: -"Protect the Boss." is popular.
+probs(ent,neu,con)=[0.01, 0.99, 0.0]
+PREMISE: Ji Sung. He is best known for his roles in the television dramas "All In" (2003), "Save the Last Dance for Me" (2004), "New Heart" (2007), "Protect the Boss" (2011), "Secret Love" (2013), "Kill Me, Heal Me" (2015), "Innocent Defendant" (2017), "Familiar Wife" (2018), "Doctor John" (2019), "The Devil Judge" (2021) and the film "My PS Partner" (2012). Kwak Tae-geun's parents were both educators, and they expected him to also enter the teaching profession. But in his sophomore year in high school, his father bought him a VCR and the first movie he rented was "Rain Man".
+
+[FN20] gold=S title=Ji Sung
+FACT: "Familiar Wife." is popular.
+probs(ent,neu,con)=[0.0, 1.0, 0.0]
+PREMISE: Ji Sung. He is best known for his roles in the television dramas "All In" (2003), "Save the Last Dance for Me" (2004), "New Heart" (2007), "Protect the Boss" (2011), "Secret Love" (2013), "Kill Me, Heal Me" (2015), "Innocent Defendant" (2017), "Familiar Wife" (2018), "Doctor John" (2019), "The Devil Judge" (2021) and the film "My PS Partner" (2012). Kwak Tae-geun's parents were both educators, and they expected him to also enter the teaching profession. But in his sophomore year in high school, his father bought him a VCR and the first movie he rented was "Rain Man".

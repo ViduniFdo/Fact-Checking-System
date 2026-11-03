@@ -37,27 +37,38 @@ class EntailmentModel(object):
         self.tokenizer = tokenizer
         self.cuda = cuda
 
-    def check_entailment(self, premise: str, hypothesis: str):
-        with torch.no_grad():
-            # Tokenize the premise and hypothesis
-            inputs = self.tokenizer(premise, hypothesis, return_tensors='pt', truncation=True, padding=True)
+    def check_entailment(self, premise: str, hypothesis: str) -> List[float]:
+        """
+        Runs the NLI model on one premise-hypothesis pair.
+        :return: [P(entailment), P(neutral), P(contradiction)]
+        """
+        return self.check_entailment_batch([premise], hypothesis)[0]
+
+    def check_entailment_batch(self, premises: List[str], hypothesis: str, batch_size: int = 16) -> List[List[float]]:
+        """
+        Runs the NLI model on many premises that share one hypothesis, in small batches to keep memory bounded.
+        :return: one [P(entailment), P(neutral), P(contradiction)] list per premise. The model's label order is
+        ["entailment", "neutral", "contradiction"].
+        """
+        probs = []
+        for i in range(0, len(premises), batch_size):
+            batch = premises[i:i + batch_size]
+            with torch.no_grad():
+                inputs = self.tokenizer(batch, [hypothesis] * len(batch), return_tensors='pt', truncation=True,
+                                        max_length=256, padding=True)
+                if self.cuda:
+                    inputs = {key: value.to('cuda') for key, value in inputs.items()}
+                outputs = self.model(**inputs)
+                logits = outputs.logits
+                batch_probs = torch.softmax(logits, dim=-1).cpu().tolist()
+            probs.extend(batch_probs)
+
+            # To prevent out-of-memory (OOM) issues, explicitly delete objects that are no longer needed.
+            del inputs, outputs, logits
+            gc.collect()
             if self.cuda:
-                inputs = {key: value.to('cuda') for key, value in inputs.items()}
-            # Get the model's prediction
-            outputs = self.model(**inputs)
-            logits = outputs.logits
-
-        # Note that the labels are ["entailment", "neutral", "contradiction"]. There are a number of ways to map
-        # these logits or probabilities to classification decisions; you'll have to decide how you want to do this.
-
-        raise Exception("Not implemented")
-
-        # To prevent out-of-memory (OOM) issues during autograding, we explicitly delete
-        # objects inputs, outputs, logits, and any results that are no longer needed after the computation.
-        del inputs, outputs, logits
-        gc.collect()
-
-        # return something
+                torch.cuda.empty_cache()
+        return probs
 
 
 class FactChecker(object):
@@ -247,12 +258,69 @@ class WordRecallThresholdFactChecker(FactChecker):
         else:
             return "NS"
 
+def split_into_sentences(text: str) -> List[str]:
+    """
+    Splits a raw passage into cleaned sentences. Passages contain <s>...</s> markers that do not always line up with
+    real sentence boundaries, so the markers are used as hard boundaries and a punctuation rule splits within them.
+    """
+    sentences = []
+    for chunk in re.split(r"</?s>", text):
+        chunk = re.sub(r"\s+", " ", chunk).strip()
+        if not chunk:
+            continue
+        for sent in re.split(r'(?<=[.!?])["\']?\s+(?=[A-Z0-9"\'(])', chunk):
+            sent = sent.strip()
+            if len(sent.split()) >= 3:
+                sentences.append(sent)
+    return sentences
+
+
 class EntailmentFactChecker(FactChecker):
-    def __init__(self, ent_model):
+    """
+    Uses the NLI model on (premise, fact) pairs, where a premise is a window of consecutive passage sentences prefixed
+    with the Wikipedia page title. Windows give the model the context needed to resolve pronouns and multi-sentence
+    evidence, and the title supplies the subject of the biography. A fact is Supported if the maximum entailment
+    probability over all candidate premises reaches ent_threshold. Candidates are pruned by word overlap with the fact,
+    since a premise sharing few words with the fact is very unlikely to entail it.
+    """
+    def __init__(self, ent_model, ent_threshold: float = 0.4, prune_threshold: float = 0.4, max_premises: int = 8,
+                 window: int = 3):
         self.ent_model = ent_model
+        self.ent_threshold = ent_threshold
+        self.prune_threshold = prune_threshold
+        self.max_premises = max_premises
+        self.window = window
+
+    def candidate_premises(self, fact: str, passages: List[dict]) -> List[str]:
+        """ Title-prefixed sentence windows whose word recall of the fact reaches prune_threshold, best first """
+        fact_words = set(preprocess_text(fact, True, True))
+        if not fact_words:
+            return []
+        scored = []
+        seen = set()
+        for passage in passages:
+            sentences = split_into_sentences(passage["text"])
+            for i in range(max(1, len(sentences) - self.window + 1)):
+                chunk = " ".join(sentences[i:i + self.window])
+                if not chunk or chunk in seen:
+                    continue
+                seen.add(chunk)
+                recall = count_overlapping_words(fact_words, set(preprocess_text(chunk, True, True))) / len(fact_words)
+                if recall >= self.prune_threshold:
+                    scored.append((recall, passage["title"] + ". " + chunk))
+        scored.sort(key=lambda x: -x[0])
+        return [premise for _, premise in scored[:self.max_premises]]
+
+    def entailment_score(self, fact: str, passages: List[dict]) -> float:
+        """ Max P(entailment) over the candidate premises (0.0 if every premise was pruned) """
+        premises = self.candidate_premises(fact, passages)
+        if not premises:
+            return 0.0
+        probs = self.ent_model.check_entailment_batch(premises, fact)
+        return max(p[0] for p in probs)
 
     def predict(self, fact: str, passages: List[dict]) -> str:
-        raise Exception("Implement me")
+        return "S" if self.entailment_score(fact, passages) >= self.ent_threshold else "NS"
 
 
 # OPTIONAL
