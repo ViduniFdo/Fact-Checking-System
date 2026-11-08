@@ -274,6 +274,34 @@ def split_into_sentences(text: str) -> List[str]:
                 sentences.append(sent)
     return sentences
 
+def get_overlap_score(fact_words: set, text:str) -> float:
+    if len(fact_words) == 0:
+        return 0.0
+    text_words = set(preprocess_text(text, remove_stop=True, use_stemming=True))
+    return count_overlapping_words(fact_words, text_words) / len(fact_words)
+
+def get_first_item(pair):
+    return pair[0]
+
+#removes passage pieces that share few words with the fact and keeps only the 8 best matches.
+def prune_premises_by_overlap(fact: str, pieces: List[tuple], prune_threshold: float = 0.4,
+                              max_premises: int = 8) -> List[str]:
+    fact_words = set(preprocess_text(fact, remove_stop=True, use_stemming=True))
+    if len(fact_words) == 0:
+        return []
+
+    scored = []
+    for title, text in pieces:
+        score = get_overlap_score(fact_words, text)
+        if score >= prune_threshold:
+            scored.append((score, title + ". "+ text))
+
+    scored.sort(key=get_first_item, reverse=True)
+
+    kept = []
+    for score, premise in scored[:max_premises]:
+        kept.append(premise)
+    return kept
 
 class EntailmentFactChecker(FactChecker):
     """
@@ -293,10 +321,7 @@ class EntailmentFactChecker(FactChecker):
 
     def candidate_premises(self, fact: str, passages: List[dict]) -> List[str]:
         """ Title-prefixed sentence windows whose word recall of the fact reaches prune_threshold, best first """
-        fact_words = set(preprocess_text(fact, True, True))
-        if not fact_words:
-            return []
-        scored = []
+        pieces = []
         seen = set()
         for passage in passages:
             sentences = split_into_sentences(passage["text"])
@@ -305,11 +330,8 @@ class EntailmentFactChecker(FactChecker):
                 if not chunk or chunk in seen:
                     continue
                 seen.add(chunk)
-                recall = count_overlapping_words(fact_words, set(preprocess_text(chunk, True, True))) / len(fact_words)
-                if recall >= self.prune_threshold:
-                    scored.append((recall, passage["title"] + ". " + chunk))
-        scored.sort(key=lambda x: -x[0])
-        return [premise for _, premise in scored[:self.max_premises]]
+                pieces.append((passage["title"], chunk))
+        return prune_premises_by_overlap(fact, pieces, self.prune_threshold, self.max_premises)
 
     def entailment_score(self, fact: str, passages: List[dict]) -> float:
         """ Max P(entailment) over the candidate premises (0.0 if every premise was pruned) """
