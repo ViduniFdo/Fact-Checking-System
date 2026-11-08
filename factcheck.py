@@ -38,37 +38,35 @@ class EntailmentModel(object):
         self.cuda = cuda
 
     def check_entailment(self, premise: str, hypothesis: str) -> List[float]:
-        """
-        Runs the NLI model on one premise-hypothesis pair.
-        :return: [P(entailment), P(neutral), P(contradiction)]
-        """
         return self.check_entailment_batch([premise], hypothesis)[0]
 
     def check_entailment_batch(self, premises: List[str], hypothesis: str, batch_size: int = 16) -> List[List[float]]:
-        """
-        Runs the NLI model on many premises that share one hypothesis, in small batches to keep memory bounded.
-        :return: one [P(entailment), P(neutral), P(contradiction)] list per premise. The model's label order is
-        ["entailment", "neutral", "contradiction"].
-        """
-        probs = []
-        for i in range(0, len(premises), batch_size):
-            batch = premises[i:i + batch_size]
-            with torch.no_grad():
-                inputs = self.tokenizer(batch, [hypothesis] * len(batch), return_tensors='pt', truncation=True,
-                                        max_length=256, padding=True)
-                if self.cuda:
-                    inputs = {key: value.to('cuda') for key, value in inputs.items()}
-                outputs = self.model(**inputs)
-                logits = outputs.logits
-                batch_probs = torch.softmax(logits, dim=-1).cpu().tolist()
-            probs.extend(batch_probs)
+        all_probs = []
+        for start in range(0, len(premises), batch_size):
+            batch = premises[start:start + batch_size]
+            inputs = self.prepare_inputs(batch, hypothesis)
+            all_probs.extend(self.get_probabilities(inputs))
+            self.free_memory(inputs)
+        return all_probs
 
-            # To prevent out-of-memory (OOM) issues, explicitly delete objects that are no longer needed.
-            del inputs, outputs, logits
-            gc.collect()
-            if self.cuda:
-                torch.cuda.empty_cache()
-        return probs
+    def prepare_inputs(self, premises: List[str], hypothesis: str):
+        inputs = self.tokenizer(premises, [hypothesis] * len(premises), return_tensors='pt', truncation=True,
+                                        max_length=256, padding=True)
+        if self.cuda:
+            inputs = inputs.to('cuda')
+        return inputs
+
+    def get_probabilities(self, inputs) -> List[List[float]]:
+        with torch.no_grad():
+            logits = self.model(**inputs).logits
+            return torch.softmax(logits, dim=-1).cpu().tolist()
+
+    def free_memory(self, inputs):
+        del inputs
+        gc.collect()
+        if self.cuda:
+            torch.cuda.empty_cache()
+
 
 
 class FactChecker(object):
