@@ -256,20 +256,34 @@ class WordRecallThresholdFactChecker(FactChecker):
         else:
             return "NS"
 
+def _clean_sentence_chunk(chunk: str) -> str:
+    """
+    Normalizes whitespace and cleans Wikipedia tag artifacts for transformer input.
+    """
+    return re.sub(r"\s+", " ", chunk).strip()
+
 def split_into_sentences(text: str) -> List[str]:
     """
     Splits a raw passage into cleaned sentences. Passages contain <s>...</s> markers that do not always line up with
     real sentence boundaries, so the markers are used as hard boundaries and a punctuation rule splits within them.
     """
     sentences = []
-    for chunk in re.split(r"</?s>", text):
-        chunk = re.sub(r"\s+", " ", chunk).strip()
+    # Split across Wikipedia hard tags
+    raw_chunks = re.split(r"</?s>", text)
+    
+    for raw_chunk in raw_chunks:
+        chunk = _clean_sentence_chunk(raw_chunk)
         if not chunk:
             continue
-        for sent in re.split(r'(?<=[.!?])["\']?\s+(?=[A-Z0-9"\'(])', chunk):
-            sent = sent.strip()
-            if len(sent.split()) >= 3:
-                sentences.append(sent)
+            
+        # Split on sentence punctuation boundaries
+        candidate_sents = re.split(r'(?<=[.!?])["\']?\s+(?=[A-Z0-9"\'(])', chunk)
+        for sent in candidate_sents:
+            clean_sent = sent.strip()
+            # Retain non-trivial sentence candidates (at least 3 words)
+            if len(clean_sent.split()) >= 3:
+                sentences.append(clean_sent)
+                
     return sentences
 
 def get_overlap_score(fact_words: set, text:str) -> float:
