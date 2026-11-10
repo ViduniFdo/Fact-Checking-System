@@ -264,8 +264,7 @@ def _clean_sentence_chunk(chunk: str) -> str:
 
 def split_into_sentences(text: str) -> List[str]:
     """
-    Splits a raw passage into cleaned sentences. Passages contain <s>...</s> markers that do not always line up with
-    real sentence boundaries, so the markers are used as hard boundaries and a punctuation rule splits within them.
+    Splits passage into clean sentences by treating <s> tags as hard boundaries and splitting on punctuation.
     """
     sentences = []
     # Split across Wikipedia hard tags
@@ -317,11 +316,8 @@ def prune_premises_by_overlap(fact: str, pieces: List[tuple], prune_threshold: f
 
 class EntailmentFactChecker(FactChecker):
     """
-    Uses the NLI model on (premise, fact) pairs, where a premise is a window of consecutive passage sentences prefixed
-    with the Wikipedia page title. Windows give the model the context needed to resolve pronouns and multi-sentence
-    evidence, and the title supplies the subject of the biography. A fact is Supported if the maximum entailment
-    probability over all candidate premises reaches ent_threshold. Candidates are pruned by word overlap with the fact,
-    since a premise sharing few words with the fact is very unlikely to entail it.
+    Evaluates fact entailment across title-prefixed sentence windows using max DeBERTa 
+    probability after pruning low-overlap premises.
     """
     def __init__(self, ent_model, ent_threshold: float = 0.4, prune_threshold: float = 0.4, max_premises: int = 8,
                  window: int = 3):
